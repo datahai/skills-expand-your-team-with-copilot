@@ -24,7 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
-  const schoolName = "Mergington High School";
+  const schoolName =
+    document.querySelector("header h1")?.textContent?.trim() ||
+    "Mergington High School";
   const sharedActivityHighlightDurationMs = 3000;
 
   // Activity categories with corresponding colors
@@ -358,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
       temporaryInput.select();
 
       if (!document.execCommand("copy")) {
-        throw new Error("Copy command was not successful");
+        throw new Error("Could not copy to clipboard");
       }
     } finally {
       if (temporaryInput.parentNode) {
@@ -389,7 +391,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       console.error("Error sharing activity:", error);
-      showMessage("Sharing did not work. Please try again.", "error");
+      showMessage(
+        "Sharing did not work. Try copying the link instead.",
+        "error"
+      );
     }
   }
 
@@ -407,7 +412,10 @@ document.addEventListener("DOMContentLoaded", () => {
       showMessage("Share link copied to your clipboard.", "success");
     } catch (error) {
       console.error("Error copying share link:", error);
-      showMessage("Unable to copy the share link.", "error");
+      showMessage(
+        "Unable to copy the share link. Please try the Email button instead.",
+        "error"
+      );
     }
   }
 
