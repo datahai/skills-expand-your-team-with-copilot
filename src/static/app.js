@@ -304,6 +304,126 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function getActivityCardId(activityName) {
+    const normalizedName = activityName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+    return `activity-${normalizedName}`;
+  }
+
+  function getSharedActivityName() {
+    const hashValue = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    const hashParams = new URLSearchParams(hashValue);
+
+    return hashParams.get("activity") || "";
+  }
+
+  function buildActivityShareData(activityName, details) {
+    const shareUrl = new URL(window.location.href);
+    shareUrl.hash = new URLSearchParams({ activity: activityName }).toString();
+
+    const schedule = formatSchedule(details);
+    const shareTitle = `${activityName} at Mergington High School`;
+    const shareText = `Check out ${activityName} at Mergington High School. ${details.description} Meets ${schedule}.`;
+    const emailBody = `${shareText}\n\nLearn more here: ${shareUrl.toString()}`;
+
+    return {
+      title: shareTitle,
+      text: shareText,
+      url: shareUrl.toString(),
+      emailSubject: `Take a look at ${activityName}`,
+      emailBody,
+    };
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const temporaryInput = document.createElement("textarea");
+    temporaryInput.value = text;
+    temporaryInput.setAttribute("readonly", "");
+    temporaryInput.style.position = "absolute";
+    temporaryInput.style.left = "-9999px";
+    document.body.appendChild(temporaryInput);
+    temporaryInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(temporaryInput);
+  }
+
+  async function handleNativeShare(activityName, details) {
+    const shareData = buildActivityShareData(activityName, details);
+
+    if (!navigator.share) {
+      await copyTextToClipboard(shareData.url);
+      showMessage("Link copied so you can share it anywhere.", "success");
+      return;
+    }
+
+    try {
+      await navigator.share({
+        title: shareData.title,
+        text: shareData.text,
+        url: shareData.url,
+      });
+      showMessage("Activity details are ready to share.", "success");
+    } catch (error) {
+      if (error.name === "AbortError") {
+        return;
+      }
+
+      console.error("Error sharing activity:", error);
+      showMessage("Sharing did not work. Please try again.", "error");
+    }
+  }
+
+  function handleEmailShare(activityName, details) {
+    const shareData = buildActivityShareData(activityName, details);
+    window.location.href = `mailto:?subject=${encodeURIComponent(
+      shareData.emailSubject
+    )}&body=${encodeURIComponent(shareData.emailBody)}`;
+  }
+
+  async function handleCopyShareLink(activityName, details) {
+    try {
+      const shareData = buildActivityShareData(activityName, details);
+      await copyTextToClipboard(shareData.url);
+      showMessage("Share link copied to your clipboard.", "success");
+    } catch (error) {
+      console.error("Error copying share link:", error);
+      showMessage("Unable to copy the share link.", "error");
+    }
+  }
+
+  function highlightSharedActivity() {
+    const sharedActivityName = getSharedActivityName();
+
+    if (!sharedActivityName) {
+      return;
+    }
+
+    const sharedActivityCard = document.getElementById(
+      getActivityCardId(sharedActivityName)
+    );
+
+    if (!sharedActivityCard) {
+      return;
+    }
+
+    sharedActivityCard.classList.add("shared-activity-highlight");
+    sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    setTimeout(() => {
+      sharedActivityCard.classList.remove("shared-activity-highlight");
+    }, 3000);
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -470,12 +590,15 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+
+    highlightSharedActivity();
   }
 
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
+    activityCard.id = getActivityCardId(name);
 
     // Calculate spots and capacity
     const totalSpots = details.max_participants;
@@ -553,21 +676,37 @@ document.addEventListener("DOMContentLoaded", () => {
         </ul>
       </div>
       <div class="activity-card-actions">
-        ${
-          currentUser
-            ? `
-          <button class="register-button" data-activity="${name}" ${
-                isFull ? "disabled" : ""
-              }>
-            ${isFull ? "Activity Full" : "Register Student"}
-          </button>
-        `
-            : `
-          <div class="auth-notice">
-            Teachers can register students.
+        <div class="activity-primary-action">
+          ${
+            currentUser
+              ? `
+            <button class="register-button" data-activity="${name}" ${
+                  isFull ? "disabled" : ""
+                }>
+              ${isFull ? "Activity Full" : "Register Student"}
+            </button>
+          `
+              : `
+            <div class="auth-notice">
+              Teachers can register students.
+            </div>
+          `
+          }
+        </div>
+        <div class="share-actions">
+          <span class="share-actions-label">Share with friends:</span>
+          <div class="share-buttons">
+            <button class="share-button native-share-button" type="button">
+              Share
+            </button>
+            <button class="share-button email-share-button" type="button">
+              Email
+            </button>
+            <button class="share-button copy-link-button" type="button">
+              Copy Link
+            </button>
           </div>
-        `
-        }
+        </div>
       </div>
     `;
 
@@ -586,6 +725,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    const nativeShareButton = activityCard.querySelector(".native-share-button");
+    const emailShareButton = activityCard.querySelector(".email-share-button");
+    const copyLinkButton = activityCard.querySelector(".copy-link-button");
+
+    nativeShareButton.addEventListener("click", () => {
+      handleNativeShare(name, details);
+    });
+
+    emailShareButton.addEventListener("click", () => {
+      handleEmailShare(name, details);
+    });
+
+    copyLinkButton.addEventListener("click", () => {
+      handleCopyShareLink(name, details);
+    });
 
     activitiesList.appendChild(activityCard);
   }

@@ -187,7 +187,76 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.activity-primary-action {
+  width: 100%;
+}
+
+.auth-notice {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background-color: var(--background);
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.share-actions-label {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-button {
+  flex: 1 1 90px;
+  background-color: var(--background);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+}
+
+.share-button:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  color: var(--primary-text);
+}
+
+.shared-activity-highlight {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.2);
+  animation: shared-card-pulse 1.2s ease-in-out 2;
+}
+
+@keyframes shared-card-pulse {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
 
 /* Activity Tag */
