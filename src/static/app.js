@@ -315,12 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getActivityCardId(activityName) {
-    const normalizedName = activityName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-
-    return `activity-${normalizedName}`;
+    return `activity-${encodeURIComponent(activityName).replace(/%/g, "-")}`;
   }
 
   function getSharedActivityName() {
@@ -570,6 +565,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to display filtered activities
   function displayFilteredActivities() {
+    if (sharedActivityHighlightTimeoutId) {
+      clearTimeout(sharedActivityHighlightTimeoutId);
+      sharedActivityHighlightTimeoutId = null;
+    }
+
     // Clear the activities list
     activitiesList.innerHTML = "";
 
@@ -871,6 +871,13 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("click", (event) => {
     if (event.target === registrationModal) {
       closeRegistrationModalHandler();
+    }
+  });
+
+  window.addEventListener("beforeunload", () => {
+    if (sharedActivityHighlightTimeoutId) {
+      clearTimeout(sharedActivityHighlightTimeoutId);
+      sharedActivityHighlightTimeoutId = null;
     }
   });
 
