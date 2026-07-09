@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     beginner: "Beginner",
     intermediate: "Intermediate",
     advanced: "Advanced",
+    all: "All Levels",
   };
 
   // State for activities and filters
