@@ -65,7 +65,7 @@ initial_activities = {
     },
     "Programming Class": {
         "description": "Learn programming fundamentals and build software projects",
-        "difficulty": "Beginner",
+        "difficulty": "beginner",
         "schedule": "Tuesdays and Thursdays, 7:00 AM - 8:00 AM",
         "schedule_details": {
             "days": ["Tuesday", "Thursday"],
@@ -77,7 +77,7 @@ initial_activities = {
     },
     "Morning Fitness": {
         "description": "Early morning physical training and exercises",
-        "difficulty": "Beginner",
+        "difficulty": "beginner",
         "schedule": "Mondays, Wednesdays, Fridays, 6:30 AM - 7:45 AM",
         "schedule_details": {
             "days": ["Monday", "Wednesday", "Friday"],
@@ -89,7 +89,7 @@ initial_activities = {
     },
     "Soccer Team": {
         "description": "Join the school soccer team and compete in matches",
-        "difficulty": "Intermediate",
+        "difficulty": "intermediate",
         "schedule": "Tuesdays and Thursdays, 3:30 PM - 5:30 PM",
         "schedule_details": {
             "days": ["Tuesday", "Thursday"],
@@ -134,7 +134,7 @@ initial_activities = {
     },
     "Math Club": {
         "description": "Solve challenging problems and prepare for math competitions",
-        "difficulty": "Intermediate",
+        "difficulty": "intermediate",
         "schedule": "Tuesdays, 7:15 AM - 8:00 AM",
         "schedule_details": {
             "days": ["Tuesday"],
@@ -146,7 +146,7 @@ initial_activities = {
     },
     "Debate Team": {
         "description": "Develop public speaking and argumentation skills",
-        "difficulty": "Advanced",
+        "difficulty": "advanced",
         "schedule": "Fridays, 3:30 PM - 5:30 PM",
         "schedule_details": {
             "days": ["Friday"],
@@ -158,7 +158,7 @@ initial_activities = {
     },
     "Weekend Robotics Workshop": {
         "description": "Build and program robots in our state-of-the-art workshop",
-        "difficulty": "Advanced",
+        "difficulty": "advanced",
         "schedule": "Saturdays, 10:00 AM - 2:00 PM",
         "schedule_details": {
             "days": ["Saturday"],
