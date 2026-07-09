@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  const schoolName = "Mergington High School";
+  const sharedActivityHighlightDurationMs = 3000;
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -327,8 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
     shareUrl.hash = new URLSearchParams({ activity: activityName }).toString();
 
     const schedule = formatSchedule(details);
-    const shareTitle = `${activityName} at Mergington High School`;
-    const shareText = `Check out ${activityName} at Mergington High School. ${details.description} Meets ${schedule}.`;
+    const shareTitle = `${activityName} at ${schoolName}`;
+    const shareText = `Check out ${activityName} at ${schoolName}. ${details.description} Meets ${schedule}.`;
     const emailBody = `${shareText}\n\nLearn more here: ${shareUrl.toString()}`;
 
     return {
@@ -347,14 +349,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const temporaryInput = document.createElement("textarea");
-    temporaryInput.value = text;
-    temporaryInput.setAttribute("readonly", "");
-    temporaryInput.style.position = "absolute";
-    temporaryInput.style.left = "-9999px";
-    document.body.appendChild(temporaryInput);
-    temporaryInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(temporaryInput);
+    try {
+      temporaryInput.value = text;
+      temporaryInput.setAttribute("readonly", "");
+      temporaryInput.style.position = "absolute";
+      temporaryInput.style.left = "-9999px";
+      document.body.appendChild(temporaryInput);
+      temporaryInput.select();
+
+      if (!document.execCommand("copy")) {
+        throw new Error("Copy command was not successful");
+      }
+    } finally {
+      if (temporaryInput.parentNode) {
+        temporaryInput.parentNode.removeChild(temporaryInput);
+      }
+    }
   }
 
   async function handleNativeShare(activityName, details) {
@@ -421,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => {
       sharedActivityCard.classList.remove("shared-activity-highlight");
-    }, 3000);
+    }, sharedActivityHighlightDurationMs);
   }
 
   // Function to determine activity type (this would ideally come from backend)
@@ -730,17 +740,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailShareButton = activityCard.querySelector(".email-share-button");
     const copyLinkButton = activityCard.querySelector(".copy-link-button");
 
-    nativeShareButton.addEventListener("click", () => {
-      handleNativeShare(name, details);
-    });
+    if (nativeShareButton) {
+      nativeShareButton.addEventListener("click", () => {
+        handleNativeShare(name, details);
+      });
+    }
 
-    emailShareButton.addEventListener("click", () => {
-      handleEmailShare(name, details);
-    });
+    if (emailShareButton) {
+      emailShareButton.addEventListener("click", () => {
+        handleEmailShare(name, details);
+      });
+    }
 
-    copyLinkButton.addEventListener("click", () => {
-      handleCopyShareLink(name, details);
-    });
+    if (copyLinkButton) {
+      copyLinkButton.addEventListener("click", () => {
+        handleCopyShareLink(name, details);
+      });
+    }
 
     activitiesList.appendChild(activityCard);
   }
