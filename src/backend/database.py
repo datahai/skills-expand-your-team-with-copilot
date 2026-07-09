@@ -31,6 +31,11 @@ def init_database():
                     {"_id": name},
                     {"$set": {"difficulty": details["difficulty"]}}
                 )
+            else:
+                activities_collection.update_one(
+                    {"_id": name},
+                    {"$unset": {"difficulty": ""}}
+                )
             
     # Initialize teacher accounts if empty
     if teachers_collection.count_documents({}) == 0:
