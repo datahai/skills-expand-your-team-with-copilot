@@ -25,8 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
   const schoolName =
+    document.body.dataset.schoolName ||
     document.querySelector("header h1")?.textContent?.trim() ||
-    "Mergington High School";
+    "our school";
   const sharedActivityHighlightDurationMs = 3000;
 
   // Activity categories with corresponding colors
@@ -333,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const schedule = formatSchedule(details);
     const shareTitle = `${activityName} at ${schoolName}`;
     const shareText = `Check out ${activityName} at ${schoolName}. ${details.description} Meets ${schedule}.`;
-    const emailBody = `${shareText}\n\nLearn more here: ${shareUrl.toString()}`;
+    const emailBody = `${shareText}\n\nMore information: ${shareUrl.toString()}`;
 
     return {
       title: shareTitle,
@@ -360,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
       temporaryInput.select();
 
       if (!document.execCommand("copy")) {
-        throw new Error("Could not copy to clipboard");
+        throw new Error("Failed to copy the share link to the clipboard");
       }
     } finally {
       if (temporaryInput.parentNode) {
