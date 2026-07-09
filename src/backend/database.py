@@ -30,14 +30,14 @@ def init_database():
             if "difficulty" in details:
                 update_operations.append(
                     UpdateOne(
-                        {"_id": name},
+                        {"_id": name, "difficulty": {"$ne": details["difficulty"]}},
                         {"$set": {"difficulty": details["difficulty"]}}
                     )
                 )
             else:
                 update_operations.append(
                     UpdateOne(
-                        {"_id": name},
+                        {"_id": name, "difficulty": {"$exists": True}},
                         {"$unset": {"difficulty": ""}}
                     )
                 )
