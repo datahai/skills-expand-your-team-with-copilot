@@ -24,11 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
-  const schoolName =
-    document.body.dataset.schoolName ||
-    document.querySelector("header h1")?.textContent?.trim() ||
-    "our school";
   const sharedActivityHighlightDurationMs = 3000;
+  let sharedActivityHighlightTimeoutId = null;
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -48,6 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  function getSchoolName() {
+    return (
+      document.body.dataset.schoolName ||
+      document.querySelector("header h1")?.textContent?.trim() ||
+      "our school"
+    );
+  }
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -328,6 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function buildActivityShareData(activityName, details) {
+    const schoolName = getSchoolName();
     const shareUrl = new URL(window.location.href);
     shareUrl.hash = new URLSearchParams({ activity: activityName }).toString();
 
@@ -361,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
       temporaryInput.select();
 
       if (!document.execCommand("copy")) {
-        throw new Error("Failed to copy the share link to the clipboard");
+        throw new Error("Clipboard access is limited in this browser.");
       }
     } finally {
       if (temporaryInput.parentNode) {
@@ -374,8 +380,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareData = buildActivityShareData(activityName, details);
 
     if (!navigator.share) {
-      await copyTextToClipboard(shareData.url);
-      showMessage("Link copied so you can share it anywhere.", "success");
+      try {
+        await copyTextToClipboard(shareData.url);
+        showMessage("Link copied so you can share it anywhere.", "success");
+      } catch (error) {
+        console.error("Error copying share link:", error);
+        showMessage(
+          "Clipboard access is limited in this browser. Please try the Email button instead.",
+          "error"
+        );
+      }
       return;
     }
 
@@ -413,10 +427,11 @@ document.addEventListener("DOMContentLoaded", () => {
       showMessage("Share link copied to your clipboard.", "success");
     } catch (error) {
       console.error("Error copying share link:", error);
-      showMessage(
-        "Unable to copy the share link. Please try the Email button instead.",
-        "error"
-      );
+      const errorMessage =
+        error.message === "Clipboard access is limited in this browser."
+          ? "Clipboard access is limited in this browser. Please try the Email button instead."
+          : "Unable to copy the share link. Please try the Email button instead.";
+      showMessage(errorMessage, "error");
     }
   }
 
@@ -438,8 +453,13 @@ document.addEventListener("DOMContentLoaded", () => {
     sharedActivityCard.classList.add("shared-activity-highlight");
     sharedActivityCard.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    setTimeout(() => {
+    if (sharedActivityHighlightTimeoutId) {
+      clearTimeout(sharedActivityHighlightTimeoutId);
+    }
+
+    sharedActivityHighlightTimeoutId = setTimeout(() => {
       sharedActivityCard.classList.remove("shared-activity-highlight");
+      sharedActivityHighlightTimeoutId = null;
     }, sharedActivityHighlightDurationMs);
   }
 
@@ -713,7 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         </div>
         <div class="share-actions">
-          <span class="share-actions-label">Share with friends:</span>
+          <span class="share-actions-label">Share this activity:</span>
           <div class="share-buttons">
             <button class="share-button native-share-button" type="button">
               Share
