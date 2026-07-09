@@ -31,21 +31,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyTheme(isDark) {
     if (isDark) {
       document.documentElement.setAttribute("data-theme", "dark");
-      darkModeToggle.textContent = "☀️ Light Mode";
+      if (darkModeToggle) darkModeToggle.textContent = "☀️ Light Mode";
     } else {
       document.documentElement.removeAttribute("data-theme");
-      darkModeToggle.textContent = "🌙 Dark Mode";
+      if (darkModeToggle) darkModeToggle.textContent = "🌙 Dark Mode";
     }
   }
 
   const savedTheme = localStorage.getItem("theme");
   applyTheme(savedTheme === "dark");
 
-  darkModeToggle.addEventListener("click", () => {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    applyTheme(!isDark);
-    localStorage.setItem("theme", !isDark ? "dark" : "light");
-  });
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      applyTheme(!isDark);
+      localStorage.setItem("theme", !isDark ? "dark" : "light");
+    });
+  }
 
   // Activity categories with corresponding colors
   const activityTypes = {
